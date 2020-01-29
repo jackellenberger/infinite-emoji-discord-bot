@@ -21,10 +21,6 @@ class EmojiBot
   end
 
   def _configure_service
-    @bot.message(with_text: "Ping!") do |event|
-      event.respond("Pong!")
-    end
-
     @bot.message(contains: EMOJI_REGEX) do |event|
       potential_emoji = event.message.content.scan(EMOJI_REGEX)
       urls = potential_emoji.map { |e| @emojilist[e.gsub(":","").downcase] || e }
