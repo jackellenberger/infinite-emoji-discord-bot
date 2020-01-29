@@ -3,8 +3,12 @@
 
 if [ "$#" -eq 2 ]; then
   nvm use 10 || nvm install 10
-  npm list emojme || npm install emojme \
+  npm list emojme || npm install emojme
   npx emojme download --subdomain $1 --token $2
+
+  until [ -f "build/$1.adminList.json" ]; do
+    sleep 1
+  done
 
   cat build/$1.adminList.json \
     | jq -r '. | map({(.name): .url}) | add' \
