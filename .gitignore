@@ -1,0 +1,7 @@
+# emojme requirements
+build
+node_modules
+package-lock.json
+log
+emojilist.json.new
+emojilist.json.old
