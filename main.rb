@@ -23,8 +23,16 @@ class EmojiBot
   def _configure_service
     @bot.message(contains: EMOJI_REGEX) do |event|
       potential_emoji = event.message.content.scan(EMOJI_REGEX)
-      urls = potential_emoji.map { |e| @emojilist[e.gsub(":","").downcase] || e }
-      event.respond(urls.join(" "))
+      urls = potential_emoji.map do |e|
+        name = e.gsub(":", "").downcase
+        url = @emojilist[name]
+        url = @emojilist[name.gsub("_", "-")] unless url #try dashes given underscores
+        url = @emojilist[name.gsub("-", "_")] unless url #try underscores given dashes
+        url = @emojilist[name.gsub(/[-_]/, "")] unless url #try no spacers
+
+        url
+      end.compact
+      event.respond(urls.join(" ")) if urls.any?
     end
   end
 end
