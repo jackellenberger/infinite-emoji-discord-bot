@@ -33,6 +33,7 @@ class EmojiBot
 
   def _help
     @bot.message(contains: /^emojibot help$/) do |event|
+      return if event.message.author.bot_account?
       event.respond("""
 Source: https://github.com/jackellenberger/DiscordIWantMyEmoji
 Commands:
@@ -46,6 +47,8 @@ Commands:
 
   def _identify_and_add_emoji
     @bot.message(contains: UNPOPULATED_EMOJI_REGEX) do |event|
+      return if event.message.author.bot_account?
+
       outgoing_message = nil
       incoming_message = event.text
       potential_emoji = incoming_message.scan(UNPOPULATED_EMOJI_REGEX)
@@ -102,6 +105,8 @@ Commands:
 
   def _delete_emoji
     @bot.message(contains: /^(delete|rm) <?:[\w'_-]+:(\d*>)?$/) do |event|
+      return if event.message.author.bot_account?
+
       event.text.scan(EMOJI_REGEX).each do |emoji_name|
         if emoji_to_delete = @bot.find_emoji(emoji_name.gsub(":", ""))
           Discordrb::API::Server.delete_emoji(
@@ -116,6 +121,8 @@ Commands:
 
   def _list_emoji
     @bot.message(contains: /^list emoji$/) do |event|
+      return if event.message.author.bot_account?
+
       if (emoji = event.server.emoji).any?
         event.respond(emoji.values.sort.map(&:mention).join(" "))
       else
@@ -126,6 +133,8 @@ Commands:
 
   def _enhance_emoji
     @bot.message(contains: /^enhance <?:[\w'_-]+:(\d*>)?$/) do |event|
+      return if event.message.author.bot_account?
+
       event.text.scan(EMOJI_REGEX).each do |potential_emoji_name|
         name = potential_emoji_name.gsub(":", "").downcase
         url = @emojilist[name]
