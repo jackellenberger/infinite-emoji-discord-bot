@@ -51,7 +51,7 @@ Commands:
 
       outgoing_message = nil
       incoming_message = event.text
-      potential_emoji = incoming_message.scan(UNPOPULATED_EMOJI_REGEX)
+      potential_emoji = incoming_message.scan(UNPOPULATED_EMOJI_REGEX).uniq
 
       potential_emoji.map do |potential_emoji_name|
         name = potential_emoji_name.gsub(":", "").downcase
