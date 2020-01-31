@@ -124,7 +124,7 @@ Commands:
       return if event.message.author.bot_account?
 
       if (emoji = event.server.emoji).any?
-        event.respond(emoji.values.sort.map(&:mention).join(" "))
+        event.respond(emoji.values.map(&:mention).join(" "))
       else
         event.respond("None!")
       end
