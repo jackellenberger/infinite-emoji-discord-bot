@@ -25,3 +25,10 @@ It's worth noting that this requires a redeploy every time you update your emoji
   * You will need to set your DISCORD_BOT_TOKEN environment variable to get that workin.
 1. Talk to emojibot. Share your secrets with them.
 1. Send me your emojilists. Information wants to be free.
+
+### Permissions
+
+Bestow the following permissions on your bot for it to function:
+- Send Messages - For when you want to list emoji, etc
+- Embed Links - For when you want to expand emoji to their source urls
+- Manage Emojis - Adding and deleting Emoji - Yes, this will delete your emoji if you run out.
