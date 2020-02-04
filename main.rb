@@ -7,6 +7,7 @@ require 'pry' # don't @ me
 
 EMOJILIST_FILENAME = "emojilist.json"
 EMOJI_LIMIT = ENV["EMOJI_LIMIT"] || 50
+ANIMATED_EMOJI_LIMIT = ENV["ANIMATED_EMOJI_LIMIT"] || 50
 UNPOPULATED_EMOJI_REGEX = /(?!<):[\w'_-]+:(?!\d*>)/ #ignore hydrated emoji
 EMOJI_REGEX = /:[\w'_-]+:/
 
@@ -62,39 +63,31 @@ Commands:
 
         next if !url || @bot.find_emoji(name)
 
+        animated_emoji, static_emoji = event.server.emoji.partition { |id, emoji| emoji.animated? }
+
         if url.end_with? "gif"
-          # TODO: fix gifs, they 400
-          event.respond("Ugh Jack is still working on adding gifs, but here's this #{url}")
-          next
+          image_type = "gif"
+          emoji_list = animated_emoji
+          emoji_limit = ANIMATED_EMOJI_LIMIT
+        else
+          image_type = "jpg"
+          emoji_list = static_emoji
+          emoji_limit = EMOJI_LIMIT
         end
 
-        # Delete an old emoji if we need to
-        if event.server.emoji.length >= EMOJI_LIMIT
-          id_to_delete, name_to_delete = event.server.emoji.sort.first
-          Discordrb::API::Server.delete_emoji(
-            @bot.token,
-            event.server.id,
-            id_to_delete,
-          )
-          puts "Deleted emoji: #{name_to_delete}"
-        end
-
-
-        # Add the new emoji
-        image_type = url.end_with?("gif") ? "gif" : "jpg"
         emoji_data = "data:image/#{image_type};base64,"
         emoji_data += Base64.strict_encode64(open(url).read)
 
-        response = Discordrb::API::Server.add_emoji(
-          @bot.token,
-          event.server.id,
-          emoji_data,
-          name,
-        )
+        event.respond("#{url}") if ENV["ECHO_ANIMATED_EMOJI"]
+        if emoji_list.length >= emoji_limit
+          id_to_delete, name_to_delete = emoji_list.sort.first
+          Discordrb::API::Server.delete_emoji(@bot.token, event.server.id, id_to_delete)
+          puts "Deleted emoji: #{name_to_delete}"
+        end
 
+        response = Discordrb::API::Server.add_emoji(@bot.token, event.server.id, emoji_data, name)
         new_emoji = Discordrb::Emoji.new(JSON.parse(response&.body), @bot, event.server)
         puts "Added new emoji: #{new_emoji.mention}"
-
         outgoing_message = incoming_message.gsub(potential_emoji_name, new_emoji.mention)
       end
 
