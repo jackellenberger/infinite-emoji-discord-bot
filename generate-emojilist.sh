@@ -1,16 +1,17 @@
 #!/bin/bash
 . ~/.nvm/nvm.sh
 
-if [ "$#" -eq 2 ]; then
+if [ "$#" -eq 1 ]; then
+  domain=$(echo $1 | jq -r .domain)
   nvm use 10 || nvm install 10
   npm list emojme || npm install emojme
-  npx emojme download --subdomain $1 --token $2
+  npx emojme download --auth-json $1
 
-  until [ -f "build/$1.adminList.json" ]; do
+  until [ -f "build/$domain.adminList.json" ]; do
     sleep 1
   done
 
-  cat build/$1.adminList.json \
+  cat build/$domain.adminList.json \
     | jq -r '. | map({(.name): .url}) | add' \
     > emojilist.json.new
 
@@ -24,5 +25,5 @@ if [ "$#" -eq 2 ]; then
 
   echo "emojilist.json generated"
 else
-  echo 'Usage: generate-emojilist.sh USER SUBDOMAIN TOKEN'
+  echo 'Usage: generate-emojilist.sh \'AUTH_JSON\''
 fi
